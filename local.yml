@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - name: Ensure a job every 15 minutes. Creates an entry like "15 * * * * ls -alh > /dev/null"
+      cron:
+        name: "check dirs"
+        minute: "15"
+        job: "ls -alh > /dev/null"
+
+    - name: Perform an ansible-pull
+      cron:
+        name: "ansible-pull job"
+        minute: "15"
+        job: "/usr/bin/ansible-pull --only-if-changed --url https://github.com/micheleangelofabbri/ansible-test.git > /dev/null"

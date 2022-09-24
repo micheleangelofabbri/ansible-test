@@ -1,14 +1,13 @@
-List entries in the given host file
+Using a host file instead of the `/etc/ansible/hosts` file, list entries in the given host file
 ```bash
 ansible-inventory \
 --inventory hosts.yml \
 --list
 ```
 
-Run ansible playbooks locally
+Using ansible-pull, repo should have a local.yml file that will immediately be run
 ```bash
-ansible-playbook \
---inventory hosts.yml \
---connection=local \
-ls_playbook.yml
+sudo ansible-pull \
+--only-if-changed \
+--url https://github.com/micheleangelofabbri/ansible-test.git
 ```
