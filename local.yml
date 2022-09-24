@@ -2,6 +2,17 @@
 - hosts: localhost
   connection: local
   become: true
+  pre_tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0775
+      loop:
+        - /var/log/ibl
+        - /var/log/ibl/one_more
 
   tasks:
     - name: Ensure a job every 15 minutes. Creates an entry like "15 * * * * ls -alh > /dev/null"
@@ -14,4 +25,4 @@
       cron:
         name: "ansible-pull job"
         minute: "15"
-        job: "/usr/bin/ansible-pull --only-if-changed --url https://github.com/micheleangelofabbri/ansible-test.git > /dev/null"
+        job: "/usr/bin/ansible-pull --only-if-changed --url https://github.com/micheleangelofabbri/ansible-test.git >> /var/log/ibl/ansible-pull.log"
