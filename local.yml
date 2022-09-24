@@ -2,6 +2,8 @@
 - hosts: localhost
   connection: local
   become: true
+  vars_files:
+    - vars.yml
   pre_tasks:
     - name: Create directories
       file:
@@ -9,7 +11,7 @@
         state: directory
         owner: root
         group: root
-        mode: 0775
+        mode: 0664
       loop:
         - /var/log/ibl
         - /var/log/ibl/one_more
@@ -21,8 +23,32 @@
         minute: "15"
         job: "ls -alh > /dev/null"
 
-    - name: Perform an ansible-pull
+    - name: Schedule an ansible-pull every 15 minutes, log to /var/log/ibl/ansible-pull.log
       cron:
         name: "ansible-pull job"
         minute: "15"
         job: "/usr/bin/ansible-pull --only-if-changed --url https://github.com/micheleangelofabbri/ansible-test.git >> /var/log/ibl/ansible-pull.log"
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        update_cache: yes
+        state: latest
+
+    - name: Create document root
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
