@@ -11,3 +11,12 @@ sudo ansible-pull \
 --only-if-changed \
 --url https://github.com/micheleangelofabbri/ansible-test.git
 ```
+---
+Ansible documentation:
+- General:
+  - https://docs.ansible.com/ansible/latest/cli/ansible-pull.html
+- Modules:
+  - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html
+  - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
+  - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
+  - https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html
