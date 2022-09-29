@@ -1,0 +1,85 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+  vars_files:
+    - vars.yml
+  pre_tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0664
+      loop:
+        - /var/log/ibl
+        - /var/log/ibl/one_more
+        - /some_mount_dir
+
+    - name: Create log file
+      file:
+        path: /var/log/ibl/ansible-pull.log
+        owner: root
+        group: root
+        mode: 0664
+
+  tasks:
+    - name: Ensure a job runs every 15 minutes. Creates an entry like "15 * * * * ls -alh > /dev/null"
+      cron:
+        name: "check dirs"
+        minute: "15"
+        job: "ls -alh > /dev/null"
+
+    - name: Schedule an ansible-pull every 15 minutes, log to /var/log/ibl/ansible-pull.log
+      cron:
+        name: "ansible-pull job"
+        minute: "15"
+        job: "/usr/bin/ansible-pull --only-if-changed --url https://github.com/micheleangelofabbri/ansible-test.git >> /var/log/ibl/ansible-pull.log"
+
+    - name: Add a user account with a specific uid and a primary group of 'sudo'
+      user:
+        name: new_user
+        comment: Some new user account
+        uid: 1077
+        group: sudo
+        createhome: yes       # Defaults to yes
+        home: /home/new_user  # Defaults to /home/<username>
+
+    - name: Remove the user 'johndoe'
+      user:
+        name: johndoe
+        state: absent
+        remove: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        update_cache: yes
+        state: latest
+
+    - name: Create document root
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Mount and bind a volume
+      ansible.posix.mount:
+        path: /system/new_volume/some_mount_dir
+        src: /some_mount_dir
+        opts: bind
+        state: mounted
+        fstype: none
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
