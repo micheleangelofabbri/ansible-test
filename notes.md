@@ -9,7 +9,7 @@ Using ansible-pull, repo should have a local.yml file that will immediately be r
 ```bash
 sudo ansible-pull \
 --only-if-changed \
---url https://github.com/micheleangelofabbri/ansible-test.git
+--url https://github.com/micheleangelofabbri/ansible-test /sub_dir/local.yml
 ```
 ---
 Ansible documentation:
